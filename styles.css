@@ -1,0 +1,134 @@
+@keyframes adminBlink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes teacherBlink {
+  0% {
+    opacity: 1;
+  }
+  25% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes studentBlink {
+  0% {
+    opacity: 1;
+  }
+  40% {
+    opacity: 0;
+  }
+  60% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 20px;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  text-align: center;
+}
+
+nav {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
+}
+
+button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  background-color: rgb(204, 0, 0); /* Dark Blue */
+  color: white; /* Text color */
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  font-weight: bold; /* Make text bold */
+  animation: blink 1s infinite; /* Apply blinking animation */
+}
+
+button:hover {
+  background-color: rgb(0, 76, 153); /* Darker shade for hover */
+}
+
+/* Button active effect */
+button:active {
+  background-color: rgb(0, 51, 102); /* Even darker shade when active */
+}
+
+.module {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.iconTest {
+  display: flex;
+  flex-direction: column; /* Stack items vertically */
+  align-items: center; /* Center align items */
+  /* Space below the icon/button */
+}
+.admin-btn {
+  margin: 20px;
+
+  background-color: rgb(0, 102, 204); /* Dark Blue */
+  animation: adminBlink 1.5s infinite; /* Apply blinking animation */
+}
+.admin-btn:hover {
+  background-color: rgb(0, 76, 153); /* Darker shade for hover */
+}
+
+.teacher-btn {
+  margin: 20px;
+  background-color: rgb(34, 139, 34); /* Dark Green */
+  animation: teacherBlink 1.2s infinite; /* Apply blinking animation */
+}
+
+.teacher-btn:hover {
+  background-color: rgb(25, 100, 25); /* Darker shade for hover */
+}
+
+.student-btn {
+  margin: 20px;
+  background-color: rgb(204, 0, 0); /* Dark Red */
+  animation: studentBlink 1s infinite; /* Apply blinking animation */
+}
+
+.student-btn:hover {
+  background-color: rgb(153, 0, 0); /* Darker shade for hover */
+}

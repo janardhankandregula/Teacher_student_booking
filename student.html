@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Page</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+      }
+      header {
+        background: #007bff; /* Student color */
+        color: white;
+        padding: 20px;
+        text-align: center;
+      }
+      h1 {
+        margin: 0;
+      }
+      .container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      .grade-list {
+        margin: 20px 0;
+      }
+      .grade-item {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+      }
+      .logout-btn {
+        background-color: #dc3545; /* Logout button color */
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Student Dashboard</h1>
+    </header>
+
+    <div class="container">
+      <h2>Your Grades</h2>
+      <div class="grade-list">
+        <div class="grade-item">Math: A</div>
+        <div class="grade-item">Science: B+</div>
+        <div class="grade-item">History: A-</div>
+      </div>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <script>
+      function logout() {
+        window.location.href = "index.html"; // Change to your main page
+      }
+    </script>
+  </body>
+</html>

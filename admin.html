@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Page</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+      }
+      header {
+        background: #008080; /* Admin color */
+        color: white;
+        padding: 20px;
+        text-align: center;
+      }
+      h1 {
+        margin: 0;
+      }
+      .container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      .form-group {
+        margin: 15px 0;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+      }
+      .form-group input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      .submit-btn,
+      .logout-btn {
+        background-color: #007bff; /* Button color */
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        margin-top: 10px;
+      }
+      .toggle-btn {
+        background-color: #003366; /* Button color */
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        margin-top: 10px;
+      }
+      .submit-btn:hover,
+      .toggle-btn:hover,
+      .logout-btn:hover {
+        background-color: #0056b3; /* Darker shade for hover */
+      }
+      .teacher-form {
+        display: none; /* Initially hidden */
+        margin-top: 20px;
+      }
+      .header-container {
+        display: flex;
+        justify-content: space-between; /* Space between items */
+        align-items: center; /* Center vertically */
+      }
+
+      .header-container h1 {
+        margin: 0; /* Remove default margin */
+        flex-grow: 1; /* Allow the title to take up available space */
+        text-align: center; /* Center the title text */
+      }
+
+      .logout-btn {
+        background-color: #dc3545; /* Logout button color */
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+      .form-group select {
+        width: 100%; /* Full width */
+        padding: 10px; /* Add padding for better touch area */
+        border: 1px solid #ccc; /* Border color */
+        border-radius: 4px; /* Rounded corners */
+        font-size: 16px; /* Increase font size */
+        background-color: #f9f9f9; /* Light background */
+        appearance: none; /* Remove default dropdown arrow */
+        background-image: url("data:image/png;base64,..."); /* Optional: Custom arrow image */
+        background-repeat: no-repeat; /* Prevent repeating the image */
+        background-position: right 10px center; /* Position of custom arrow */
+        background-size: 12px; /* Size of custom arrow */
+      }
+
+      .form-group select:focus {
+        border-color: #007bff; /* Change border color on focus */
+        outline: none; /* Remove outline */
+      }
+      .teacher-form {
+        max-width: 500px; /* Set a maximum width for the form */
+        margin: 0 auto; /* Center the form horizontally */
+        padding: 20px; /* Add some padding */
+        background: white; /* Background color */
+        border-radius: 8px; /* Rounded corners */
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Shadow for depth */
+      }
+
+      .form-group {
+        margin: 15px 0; /* Margin between form groups */
+      }
+
+      .form-group input,
+      .form-group select {
+        width: 100%; /* Full width within the form */
+        padding: 10px; /* Padding for inputs */
+        border: 1px solid #ccc; /* Border style */
+        border-radius: 4px; /* Rounded corners */
+        font-size: 16px; /* Font size */
+      }
+
+      .submit-btn {
+        background-color: #ffa500; /* Button color */
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        width: auto; /* Width for button */
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="header-container">
+        <h1>Admin Dashboard</h1>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
+    </header>
+
+    <div class="container">
+      <button class="toggle-btn" id="addTeacherButton" onclick="toggleForm()">
+        Add Teacher
+      </button>
+
+      <div class="teacher-form" id="teacherForm">
+        <h2>Add Teacher</h2>
+        <form onsubmit="addTeacher(event)">
+          <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" required />
+          </div>
+          <div class="form-group">
+            <label for="department">Department:</label>
+            <input type="text" id="department" required />
+          </div>
+          <div class="form-group">
+            <label for="subject">Subject:</label>
+            <select id="subject" required>
+              <option value="">Select a subject</option>
+              <option value="math">Mathematics</option>
+              <option value="science">Science</option>
+              <option value="history">History</option>
+              <option value="english">English</option>
+              <option value="geography">Geography</option>
+              <option value="art">Art</option>
+            </select>
+          </div>
+          <button type="submit" class="submit-btn">Add</button>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      function toggleForm() {
+        const form = document.getElementById("teacherForm");
+        const button = document.getElementById("addTeacherButton");
+
+        if (form.style.display === "none" || form.style.display === "") {
+          form.style.display = "block"; // Show the form
+          button.style.display = "none"; // Hide the button
+        } else {
+          form.style.display = "none"; // Hide the form
+          button.style.display = "inline-block"; // Show the button
+        }
+      }
+
+      function addTeacher(event) {
+        event.preventDefault(); // Prevent form submission
+        const name = document.getElementById("name").value;
+        const department = document.getElementById("department").value;
+        const subject = document.getElementById("subject").value;
+
+        // Here you would typically send this data to a server
+        alert(
+          `Teacher Added:\nName: ${name}\nDepartment: ${department}\nSubject: ${subject}`
+        );
+
+        // Clear the form and hide it
+        document.getElementById("teacherForm").reset();
+        toggleForm();
+      }
+
+      function logout() {
+        alert("You have been logged out.");
+        window.location.href = "index.html"; // Change to your main page
+      }
+    </script>
+  </body>
+</html>

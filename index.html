@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>School Management System</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Student Teacher Booking Appontment</h1>
+      <nav>
+        <div class="iconTest">
+          <i class="fas fa-user-shield"></i>
+          <button onclick="navigateToAdmin()" class="admin-btn">Admin</button>
+        </div>
+        <div class="iconTest">
+          <i class="fas fa-chalkboard-teacher"></i>
+          <button onclick="navigateToTeacher()" class="teacher-btn">
+            Teacher
+          </button>
+        </div>
+        <div class="iconTest">
+          <i class="fas fa-user-graduate"></i>
+          <button onclick="navigateToStudent()" class="student-btn">
+            Student
+          </button>
+        </div>
+      </nav>
+
+      <!-- <div id="admin" class="module">
+        <h2>Admin Module</h2>
+        <p>Welcome Admin! Here you can manage users and settings.</p>
+        <button onclick="alert('Managing users...')">Manage Users</button>
+      </div>
+
+      <div id="teacher" class="module" style="display: none">
+        <h2>Teacher Module</h2>
+        <p>Welcome Teacher! Here you can manage your classes and students.</p>
+        <button onclick="alert('Managing classes...')">Manage Classes</button>
+      </div>
+
+      <div id="student" class="module" style="display: none">
+        <h2>Student Module</h2>
+        <p>Welcome Student! Here you can view your grades and assignments.</p>
+        <button onclick="alert('Viewing grades...')">View Grades</button>
+      </div> -->
+    </div>
+
+    <!-- <script src="script.js"></script> -->
+    <script>
+      function showModule(module) {
+        const modules = ["admin", "teacher", "student"];
+
+        modules.forEach((mod) => {
+          document.getElementById(mod).style.display =
+            mod === module ? "block" : "none";
+        });
+      }
+
+      function navigateToAdmin() {
+        window.location.href = "admin.html"; // Change this to the correct path of your admin page
+      }
+
+      function navigateToTeacher() {
+        window.location.href = "teacher.html"; // Change this to the correct path of your teacher page
+      }
+      function navigateToStudent() {
+        window.location.href = "student.html"; // Change this to the correct path of your teacher page
+      }
+    </script>
+  </body>
+</html>
