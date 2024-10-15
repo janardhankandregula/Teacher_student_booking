@@ -142,6 +142,24 @@
         font-weight: bold;
         width: auto; /* Width for button */
       }
+      #teachersList {
+        list-style-type: none;
+        padding: 0;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      #teachersList li {
+        background: white;
+        margin: 10px 0;
+        padding: 15px;
+        border-radius: 4px;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        font-size: 16px;
+        transition: background-color 0.3s;
+      }
+      #teachersList li:hover {
+        background-color: #f1f1f1;
+      }
     </style>
   </head>
   <body>
@@ -153,6 +171,8 @@
     </header>
 
     <div class="container">
+      <h1>Teachers List</h1>
+      <ul id="teachersList"></ul>
       <button class="toggle-btn" id="addTeacherButton" onclick="toggleForm()">
         Add Teacher
       </button>
@@ -185,8 +205,34 @@
       </div>
     </div>
 
-    <script>
-      function toggleForm() {
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+      import { getDatabase } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+      import {
+        ref,
+        push,
+        set,
+      } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+      import {
+        get,
+        child,
+      } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBxPGHxAYM1MYb0MVNb2l4c5rB1sp13v8Y",
+        authDomain: "student-teacher-booking-16014.firebaseapp.com",
+        projectId: "student-teacher-booking-16014",
+        storageBucket: "student-teacher-booking-16014.appspot.com",
+        messagingSenderId: "109992254488",
+        appId: "1:109992254488:web:163c659a769de9d96b776d",
+        measurementId: "G-R7E9TGXEGR",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const database = getDatabase(app);
+
+      window.toggleForm = function () {
         const form = document.getElementById("teacherForm");
         const button = document.getElementById("addTeacherButton");
 
@@ -197,28 +243,88 @@
           form.style.display = "none"; // Hide the form
           button.style.display = "inline-block"; // Show the button
         }
+      };
+      function fetchTeachers() {
+        const teachersList = document.getElementById("teachersList");
+        teachersList.innerHTML = ""; // Clear the list before fetching data
+
+        const teachersRef = ref(database, "teachers/");
+
+        get(teachersRef)
+          .then((snapshot) => {
+            if (snapshot.exists()) {
+              const teachers = snapshot.val();
+              for (const key in teachers) {
+                const teacher = teachers[key];
+                const listItem = document.createElement("li");
+                listItem.textContent = `${teacher.name} - ${teacher.department} (${teacher.subject})`;
+                teachersList.appendChild(listItem);
+              }
+            } else {
+              teachersList.textContent = "No teachers found.";
+            }
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+          });
       }
 
-      function addTeacher(event) {
+      // Fetch and display teachers when the page loads
+      window.onload = fetchTeachers;
+
+      // Fetch and display teachers when the page loads
+
+      // window.addTeacher = function (event) {
+      //   event.preventDefault(); // Prevent form submission
+      //   const name = document.getElementById("name").value;
+      //   const department = document.getElementById("department").value;
+      //   const subject = document.getElementById("subject").value;
+
+      //   push(ref(database, "teachers/"), {
+      //     name: name,
+      //     department: department,
+      //     subject: subject,
+      //   })
+      //     .then(() => {
+      //       console.log("Teacher data stored successfully!");
+      //       toggleForm(); // Hide the form after submission
+      //     })
+      //     .catch((error) => {
+      //       console.error("Error storing data:", error);
+      //     });
+      // };
+
+      // window.logout = function () {
+      //   alert("You have been logged out.");
+      //   window.location.href = "index.html"; // Change to your main page
+      // };
+
+      window.addTeacher = function (event) {
         event.preventDefault(); // Prevent form submission
         const name = document.getElementById("name").value;
         const department = document.getElementById("department").value;
         const subject = document.getElementById("subject").value;
 
-        // Here you would typically send this data to a server
-        alert(
-          `Teacher Added:\nName: ${name}\nDepartment: ${department}\nSubject: ${subject}`
-        );
+        const teachersRef = ref(database, "teachers/");
+        push(teachersRef, {
+          name: name,
+          department: department,
+          subject: subject,
+        })
+          .then(() => {
+            console.log("Teacher data stored successfully!");
+            toggleForm(); // Hide the form after submission
+            fetchTeachers(); // Optionally fetch updated list
+          })
+          .catch((error) => {
+            console.error("Error storing data:", error);
+          });
+      };
 
-        // Clear the form and hide it
-        document.getElementById("teacherForm").reset();
-        toggleForm();
-      }
-
-      function logout() {
+      window.logout = function () {
         alert("You have been logged out.");
         window.location.href = "index.html"; // Change to your main page
-      }
+      };
     </script>
   </body>
 </html>
