@@ -62,8 +62,17 @@
         width: 300px;
         margin: 0 auto;
       }
+      #loginForm {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        width: 300px;
+        margin: 0 auto;
+      }
       input[type="text"],
-      input[type="email"] {
+      input[type="email"],
+      input[type="password"] {
         width: calc(
           100% - 22px
         ); /* Adjust width to account for padding and border */
@@ -75,6 +84,7 @@
         box-sizing: border-box; /* Ensure padding and border are included in total width */
       }
       input[type="text"]:focus,
+      input[type="password"]:focus,
       input[type="email"]:focus {
         border-color: #66afe9; /* Focus border color */
         outline: none;
@@ -94,6 +104,100 @@
       .btnSubmit:hover {
         background-color: #0056b3; /* Darker shade on hover */
       }
+      #toggleMessage {
+        cursor: pointer;
+        color: blue;
+        text-align: center;
+        margin-top: 10px;
+      }
+      #formTitle {
+        width: 100%; /* Make the heading take full width */
+        text-align: center; /* Center text */
+        margin: 0; /* Remove default margin */
+        padding-bottom: 20px;
+      }
+      .btnSubmit2 {
+        padding: 10px 15px; /* Same padding as inputs */
+        background-color: rgb(76, 175, 80); /* Button color */
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        box-sizing: border-box; /* Include padding and border in width */
+        width: auto; /* Set the width to auto to avoid full width */
+        margin: 10px auto; /* Center the button */
+        display: block; /* Make it a block element for margin auto to work */
+      }
+      .emptyState {
+        position: relative; /* Allow absolute positioning of children */
+        padding: 20px; /* Add some padding for aesthetics */
+        border: 1px solid #ccc; /* Optional: Add border for visibility */
+        border-radius: 8px; /* Optional: Round corners */
+        background-color: white; /* Background color */
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Optional: Add shadow */
+      }
+
+      #searchTeacherBtn {
+        position: absolute; /* Position the button absolutely */
+        top: 10px; /* Adjust this value as needed */
+        right: 10px; /* Adjust this value as needed */
+        padding: 8px 12px; /* Adjust padding for the button */
+        background-color: rgb(76, 175, 80); /* Button color */
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      h2 {
+        color: #333; /* Dark color for the heading */
+        margin-top: 20px; /* Space above the heading */
+        margin-bottom: 10px; /* Space below the heading */
+        font-size: 24px; /* Font size for the heading */
+      }
+
+      ul {
+        list-style-type: none; /* Remove bullet points */
+        padding: 0; /* Remove default padding */
+      }
+
+      ul li {
+        background-color: #f9f9f9; /* Light background for list items */
+        margin: 5px 0; /* Space between list items */
+        padding: 10px; /* Padding for list items */
+        border-radius: 4px; /* Rounded corners */
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+        transition: background-color 0.3s; /* Smooth background color transition */
+      }
+
+      ul li:hover {
+        background-color: #e0f7fa; /* Change background on hover */
+      }
+      .container ul {
+        list-style-type: none; /* Remove bullet points */
+        padding: 0; /* Remove padding */
+      }
+
+      .container li {
+        display: flex; /* Use flexbox for alignment */
+        justify-content: space-between; /* Space between text and button */
+        align-items: center; /* Center vertically */
+        margin-bottom: 10px; /* Space between list items */
+      }
+      .bookAppointmentBtn {
+        background-color: #007bff; /* Primary color for the button */
+        color: white; /* Text color */
+        border: none; /* No border */
+        border-radius: 4px; /* Rounded corners */
+        padding: 8px 12px; /* Padding for the button */
+        cursor: pointer; /* Pointer cursor on hover */
+        transition: background-color 0.3s; /* Smooth background color transition */
+      }
+
+      .bookAppointmentBtn:hover {
+        background-color: #0056b3; /* Darker shade on hover */
+      }
     </style>
   </head>
   <body>
@@ -103,12 +207,34 @@
     </header>
 
     <div class="container">
-      <h1>Student Registration</h1>
-      <form id="registrationForm">
+      <h1 id="formTitle">Student Registration</h1>
+
+      <form id="registrationForm" style="display: block">
         <input type="text" id="studentName" placeholder="Name" required />
         <input type="email" id="studentEmail" placeholder="Email" required />
+        <input
+          type="password"
+          id="studentPassword"
+          placeholder="Password"
+          required
+        />
         <button type="submit" class="btnSubmit">Register</button>
       </form>
+
+      <form id="loginForm" style="display: none">
+        <input type="email" id="loginEmail" placeholder="Email" required />
+        <input
+          type="password"
+          id="loginPassword"
+          placeholder="Password"
+          required
+        />
+        <button type="submit" class="btnSubmit">Login</button>
+      </form>
+
+      <p id="toggleMessage" onclick="toggleForms()">
+        Already registered? Login here.
+      </p>
     </div>
 
     <script type="module">
@@ -136,6 +262,7 @@
       // Initialize Firebase
       const app = initializeApp(firebaseConfig);
       const database = getDatabase(app);
+
       // Function to register a student
       document
         .getElementById("registrationForm")
@@ -143,10 +270,12 @@
           e.preventDefault();
           const name = document.getElementById("studentName").value;
           const email = document.getElementById("studentEmail").value;
+          const password = document.getElementById("studentPassword").value;
 
           const studentData = {
             name,
             email,
+            password,
             approved: false,
           };
 
@@ -161,9 +290,113 @@
             });
         });
 
+      // function hashPassword(password) {
+      //   // In production, use a secure hashing method like bcrypt
+      //   return btoa(password); // Base64 encoding (just for example)
+      // }
+      document.getElementById("loginForm").onsubmit = function (event) {
+        event.preventDefault();
+        const email = document.getElementById("loginEmail").value;
+        const password = document.getElementById("loginPassword").value;
+
+        const studentsRef = ref(database, "students");
+        get(studentsRef).then((snapshot) => {
+          let loggedIn = false;
+
+          snapshot.forEach((childSnapshot) => {
+            const student = childSnapshot.val();
+            console.log("Checking student:", student.email); // Log each student's email
+            console.log("Input email:", email); // Log the input email
+            console.log("Hashed input password:", password); // Log hashed password for comparison
+
+            if (student.email === email && student.password === password) {
+              if (student.approved) {
+                alert("Login successful!");
+                loggedIn = true;
+                // Redirect to the student dashboard or another page
+                const studentName = student.name;
+                const container = document.querySelector(".container");
+                container.innerHTML = `<div class="emptyState">Welcome, ${studentName}! You are logged in.
+                    <button id="searchTeacherBtn" class="btnSubmit2">Search Teacher</button>
+                  </div>`;
+
+                document.getElementById("searchTeacherBtn").onclick =
+                  function () {
+                    fetchTeachers();
+                  };
+              } else {
+                alert("Your account is not approved yet.");
+              }
+            }
+          });
+        });
+      };
+      function fetchTeachers() {
+        const teachersRef = ref(database, "teachers"); // Assuming you have a 'teachers' node in your database
+        get(teachersRef)
+          .then((snapshot) => {
+            const teachers = [];
+            snapshot.forEach((childSnapshot) => {
+              const teacher = childSnapshot.val();
+              teachers.push(teacher);
+            });
+            document.getElementById("searchTeacherBtn").style.display = "none";
+
+            displayTeachers(teachers);
+          })
+          .catch((error) => {
+            console.error("Error fetching teachers:", error);
+          });
+      }
+      function displayTeachers(teachers) {
+        const container = document.querySelector(".container");
+        let teacherDetailsHtml = "<h2>Teacher List</h2><ul>";
+
+        teachers.forEach((teacher) => {
+          teacherDetailsHtml += `<li>${teacher.name}-${teacher.department}-${teacher.subject}
+            <button class="bookAppointmentBtn" data-teacher-id="${teacher.id}">Book Appointment</button>
+            </li>`; // Adjust as needed
+        });
+
+        teacherDetailsHtml += "</ul>";
+        container.innerHTML += teacherDetailsHtml; // Append the teacher details to the existing container
+        const buttons = document.querySelectorAll(".bookAppointmentBtn");
+        buttons.forEach((button) => {
+          button.addEventListener("click", () => {
+            const teacherId = button.getAttribute("data-teacher-id");
+            // bookAppointment(teacherId); // Call the function to handle appointment booking
+            const customText = prompt(
+              "Enter your custom message for the appointment:"
+            ); // Prompt for custom text
+            if (customText) {
+              bookAppointment(teacherId, customText); // Pass the custom text to the booking function
+            }
+          });
+        });
+      }
       window.logout = function () {
         window.location.href = "index.html"; // Change to your main page
       };
+    </script>
+    <script>
+      function toggleForms() {
+        const registrationForm = document.getElementById("registrationForm");
+        const loginForm = document.getElementById("loginForm");
+        const formTitle = document.getElementById("formTitle");
+        const toggleMessage = document.getElementById("toggleMessage");
+
+        if (registrationForm.style.display === "block") {
+          registrationForm.style.display = "none";
+          loginForm.style.display = "block";
+          formTitle.textContent = "Student Login";
+          toggleMessage.textContent = "Don't have an account? Register here.";
+        } else {
+          registrationForm.style.display = "block";
+          loginForm.style.display = "none";
+          formTitle.textContent = "Student Registration";
+          toggleMessage.textContent = "Already registered? Login here.";
+        }
+      }
     </script>
   </body>
 </html>
