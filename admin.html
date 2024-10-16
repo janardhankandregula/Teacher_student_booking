@@ -186,6 +186,38 @@
       .delete-button:hover {
         background-color: #c82333; /* Darker red */
       }
+      .highlight {
+        color: red; /* Highlight color */
+        font-weight: bold; /* Make it bold for emphasis */
+      }
+      .approve-button {
+        background-color: #28a745; /* Green */
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 10px 15px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+
+      .reject-button {
+        background-color: #dc3545; /* Red */
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 10px 15px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+
+      /* Hover Effects */
+      .approve-button:hover {
+        background-color: #218838; /* Darker green */
+      }
+
+      .reject-button:hover {
+        background-color: #c82333; /* Darker red */
+      }
     </style>
     <link
       rel="stylesheet"
@@ -201,37 +233,55 @@
     </header>
 
     <div class="container">
-      <h1>Teachers List</h1>
-      <ul id="teachersList"></ul>
-      <button class="toggle-btn" id="addTeacherButton" onclick="toggleForm()">
-        Add Teacher
+      <button class="toggle-btn" id="studentsButton" onclick="showStudents()">
+        Students<span id="studentsCountDisplay">(0)</span>
+      </button>
+      <button class="toggle-btn" id="teachersButton" onclick="showTeachers()">
+        Teachers
       </button>
 
-      <div class="teacher-form" id="teacherForm">
-        <h2>Add Teacher</h2>
-        <form onsubmit="addTeacher(event)">
-          <div class="form-group">
-            <label for="name">Name:</label>
-            <input type="text" id="name" required />
-          </div>
-          <div class="form-group">
-            <label for="department">Department:</label>
-            <input type="text" id="department" required />
-          </div>
-          <div class="form-group">
-            <label for="subject">Subject:</label>
-            <select id="subject" required>
-              <option value="">Select a subject</option>
-              <option value="math">Mathematics</option>
-              <option value="science">Science</option>
-              <option value="history">History</option>
-              <option value="english">English</option>
-              <option value="geography">Geography</option>
-              <option value="art">Art</option>
-            </select>
-          </div>
-          <button type="submit" class="submit-btn">Add</button>
-        </form>
+      <div id="studentsSection" style="display: none">
+        <h2>Students List</h2>
+        <div id="noStudentsMessage" style="display: none; color: red">
+          No students registered yet.
+        </div>
+        <ul id="studentsList"></ul>
+      </div>
+
+      <div id="teachersSection" style="display: none">
+        <h2>Teachers List</h2>
+        <ul id="teachersList"></ul>
+
+        <button id="addTeacherButton" onclick="toggleForm()">
+          Add Teacher
+        </button>
+
+        <div class="teacher-form" id="teacherForm" style="display: none">
+          <h2>Add Teacher</h2>
+          <form onsubmit="addTeacher(event)">
+            <div class="form-group">
+              <label for="name">Name:</label>
+              <input type="text" id="name" required />
+            </div>
+            <div class="form-group">
+              <label for="department">Department:</label>
+              <input type="text" id="department" required />
+            </div>
+            <div class="form-group">
+              <label for="subject">Subject:</label>
+              <select id="subject" required>
+                <option value="">Select a subject</option>
+                <option value="math">Mathematics</option>
+                <option value="science">Science</option>
+                <option value="history">History</option>
+                <option value="english">English</option>
+                <option value="geography">Geography</option>
+                <option value="art">Art</option>
+              </select>
+            </div>
+            <button type="submit" class="submit-btn">Add</button>
+          </form>
+        </div>
       </div>
     </div>
 
@@ -244,6 +294,8 @@
         set,
         get,
         remove,
+        onValue,
+        update,
       } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
       import { child } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
@@ -273,6 +325,7 @@
           button.style.display = "inline-block"; // Show the button
         }
       };
+
       function fetchTeachers() {
         const teachersList = document.getElementById("teachersList");
         teachersList.innerHTML = ""; // Clear the list before fetching data
@@ -349,35 +402,71 @@
         }
       }
 
-      // Fetch and display teachers when the page loads
-      window.onload = fetchTeachers;
+      function loadStudents() {
+        const studentsList = document.getElementById("studentsList");
+        const noStudentsMessage = document.getElementById("noStudentsMessage");
+        const studentsCountDisplay = document.getElementById(
+          "studentsCountDisplay"
+        );
+        const studentsRef = ref(database, "students");
 
-      // Fetch and display teachers when the page loads
+        onValue(studentsRef, (snapshot) => {
+          studentsList.innerHTML = ""; // Clear existing list
+          let hasUnapprovedStudents = false; // Track if there are unapproved students
+          let count = 0;
 
-      // window.addTeacher = function (event) {
-      //   event.preventDefault(); // Prevent form submission
-      //   const name = document.getElementById("name").value;
-      //   const department = document.getElementById("department").value;
-      //   const subject = document.getElementById("subject").value;
+          snapshot.forEach((childSnapshot) => {
+            const student = childSnapshot.val();
+            const studentId = childSnapshot.key;
 
-      //   push(ref(database, "teachers/"), {
-      //     name: name,
-      //     department: department,
-      //     subject: subject,
-      //   })
-      //     .then(() => {
-      //       console.log("Teacher data stored successfully!");
-      //       toggleForm(); // Hide the form after submission
-      //     })
-      //     .catch((error) => {
-      //       console.error("Error storing data:", error);
-      //     });
-      // };
+            if (!student.approved) {
+              hasUnapprovedStudents = true; // Found an unapproved student
+              count++;
 
-      // window.logout = function () {
-      //   alert("You have been logged out.");
-      //   window.location.href = "index.html"; // Change to your main page
-      // };
+              const studentDiv = document.createElement("div");
+              studentDiv.innerHTML = `
+          <p>Name: ${student.name} | Email: ${student.email}</p>
+          <button class="approve-button" onclick="approveStudent('${studentId}')">Approve</button>
+          <button class="reject-button" onclick="rejectStudent('${studentId}')">Reject</button>
+        `;
+              studentsList.appendChild(studentDiv);
+            }
+          });
+          studentsCountDisplay.textContent = `(${count})`;
+
+          // Show or hide the no students message
+          if (hasUnapprovedStudents) {
+            noStudentsMessage.style.display = "none"; // Hide message if unapproved students exist
+          } else {
+            noStudentsMessage.style.display = "block"; // Show message if no unapproved students
+          }
+          if (count > 0) {
+            studentsButton.innerHTML = `Students <span id="studentsCountDisplay" class="highlight">(${count})</span>`; // Show count
+          } else {
+            studentsButton.innerHTML = `Students`; // Show just "Students"
+          }
+        });
+      }
+
+      // Function to approve a student
+      window.approveStudent = function (studentId) {
+        const studentRef = ref(database, "students/" + studentId);
+        update(studentRef, { approved: true })
+          .then(() => {})
+          .catch((error) => {
+            console.error("Error approving student:", error);
+          });
+      };
+
+      // Function to reject a student
+      window.rejectStudent = function (studentId) {
+        const studentRef = ref(database, "students/" + studentId);
+        remove(studentRef)
+          .then(() => {})
+          .catch((error) => {
+            console.error("Error rejecting student:", error);
+          });
+      };
 
       window.addTeacher = function (event) {
         event.preventDefault(); // Prevent form submission
@@ -402,8 +491,23 @@
       };
 
       window.logout = function () {
-        alert("You have been logged out.");
         window.location.href = "index.html"; // Change to your main page
+      };
+
+      window.showStudents = function () {
+        document.getElementById("studentsSection").style.display = "block";
+        document.getElementById("teachersSection").style.display = "none";
+        loadStudents(); // Call your function to load students
+      };
+      window.showTeachers = function () {
+        document.getElementById("studentsSection").style.display = "none";
+        document.getElementById("teachersSection").style.display = "block";
+        fetchTeachers(); // Call your function to load teachers if needed
+      };
+      window.onload = function () {
+        fetchTeachers();
+        loadStudents();
+        // countStudents();
       };
     </script>
   </body>
