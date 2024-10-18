@@ -246,6 +246,10 @@
         set,
         get,
         remove,
+        query,
+        orderByChild,
+        equalTo,
+        onValue,
       } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
       import { child } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
@@ -263,6 +267,7 @@
       const app = initializeApp(firebaseConfig);
       const database = getDatabase(app);
 
+      let currentStudent = null;
       // Function to register a student
       document
         .getElementById("registrationForm")
@@ -284,96 +289,182 @@
           set(newStudentRef, studentData)
             .then(() => {
               document.getElementById("registrationForm").reset();
+              currentStudent = { name, email };
             })
             .catch((error) => {
               console.error("Error submitting registration:", error);
             });
         });
 
-      // function hashPassword(password) {
-      //   // In production, use a secure hashing method like bcrypt
-      //   return btoa(password); // Base64 encoding (just for example)
-      // }
+      let currentStudentId;
       document.getElementById("loginForm").onsubmit = function (event) {
         event.preventDefault();
         const email = document.getElementById("loginEmail").value;
         const password = document.getElementById("loginPassword").value;
 
         const studentsRef = ref(database, "students");
-        get(studentsRef).then((snapshot) => {
-          let loggedIn = false;
 
-          snapshot.forEach((childSnapshot) => {
-            const student = childSnapshot.val();
-            console.log("Checking student:", student.email); // Log each student's email
-            console.log("Input email:", email); // Log the input email
-            console.log("Hashed input password:", password); // Log hashed password for comparison
+        const studentQuery = query(
+          studentsRef,
+          orderByChild("email"),
+          equalTo(email)
+        ); // Query to find the student by email
+        get(studentQuery)
+          .then((snapshot) => {
+            if (snapshot.exists()) {
+              const student = snapshot.val();
+              const studentId = Object.keys(student)[0]; // Get the student ID
 
-            if (student.email === email && student.password === password) {
-              if (student.approved) {
-                alert("Login successful!");
-                loggedIn = true;
-                // Redirect to the student dashboard or another page
-                const studentName = student.name;
-                const container = document.querySelector(".container");
-                container.innerHTML = `<div class="emptyState">Welcome, ${studentName}! You are logged in.
+              const currentStudentData = student[studentId]; // Access the student's data
+
+              if (currentStudentData.password === password) {
+                if (currentStudentData.approved) {
+                  alert("Login successful!");
+                  currentStudent = currentStudentData; // Store the logged-in student's data
+                  currentStudentId = studentId; // Store the student ID
+
+                  const container = document.querySelector(".container");
+                  container.innerHTML = `<div class="emptyState">Welcome, ${currentStudent.name}! You are logged in.
                     <button id="searchTeacherBtn" class="btnSubmit2">Search Teacher</button>
                   </div>`;
 
-                document.getElementById("searchTeacherBtn").onclick =
-                  function () {
-                    fetchTeachers();
-                  };
+                  document.getElementById("searchTeacherBtn").onclick =
+                    function () {
+                      fetchTeachers();
+                    };
+                } else {
+                  alert("Your account is not approved yet.");
+                }
               } else {
-                alert("Your account is not approved yet.");
+                alert("Incorrect password.");
               }
+            } else {
+              alert("No user found with that email.");
             }
+          })
+          .catch((error) => {
+            console.error("Error fetching student data:", error);
           });
-        });
       };
+
       function fetchTeachers() {
-        const teachersRef = ref(database, "teachers"); // Assuming you have a 'teachers' node in your database
+        const teachersRef = ref(database, "teachers");
+        const appointmentsRef = ref(database, "appointments");
+
+        // Fetch teachers first
         get(teachersRef)
           .then((snapshot) => {
             const teachers = [];
             snapshot.forEach((childSnapshot) => {
               const teacher = childSnapshot.val();
-              teachers.push(teacher);
+              const teacherId = childSnapshot.key;
+              teachers.push({ ...teacher, id: teacherId });
             });
-            document.getElementById("searchTeacherBtn").style.display = "none";
 
-            displayTeachers(teachers);
+            // Fetch appointments next
+            return get(appointmentsRef).then((appointmentsSnapshot) => {
+              const appointmentsMap = {};
+              appointmentsSnapshot.forEach((childSnapshot) => {
+                const appointment = childSnapshot.val();
+                if (!appointmentsMap[appointment.teacherId]) {
+                  appointmentsMap[appointment.teacherId] = [];
+                }
+                appointmentsMap[appointment.teacherId].push(appointment);
+              });
+              return { teachers, appointmentsMap };
+            });
+          })
+          .then(({ teachers, appointmentsMap }) => {
+            document.getElementById("searchTeacherBtn").style.display = "none";
+            displayTeachers(teachers, appointmentsMap);
           })
           .catch((error) => {
-            console.error("Error fetching teachers:", error);
+            console.error("Error fetching data:", error);
           });
       }
-      function displayTeachers(teachers) {
+
+      function displayTeachers(teachers, appointmentsMap) {
         const container = document.querySelector(".container");
         let teacherDetailsHtml = "<h2>Teacher List</h2><ul>";
 
         teachers.forEach((teacher) => {
-          teacherDetailsHtml += `<li>${teacher.name}-${teacher.department}-${teacher.subject}
-            <button class="bookAppointmentBtn" data-teacher-id="${teacher.id}">Book Appointment</button>
-            </li>`; // Adjust as needed
+          const appointments = appointmentsMap[teacher.id] || [];
+
+          let buttonText = "Book Appointment";
+          let buttonDisabled = false;
+
+          const requestedAppointment = appointments.find(
+            (app) => app.status === "requested"
+          );
+          const approvedAppointment = appointments.find(
+            (app) => app.status === "approved"
+          );
+
+          if (approvedAppointment) {
+            buttonText = "Approved";
+            buttonDisabled = true;
+          } else if (requestedAppointment) {
+            buttonText = "Request Sent";
+            buttonDisabled = true;
+          }
+
+          teacherDetailsHtml += `<li>${teacher.name} - ${
+            teacher.department
+          } - ${teacher.subject}
+            <button class="bookAppointmentBtn" data-teacher-id="${
+              teacher.id
+            }" ${buttonDisabled ? "disabled" : ""}>
+                ${buttonText}
+            </button>
+            </li>`;
         });
 
         teacherDetailsHtml += "</ul>";
-        container.innerHTML += teacherDetailsHtml; // Append the teacher details to the existing container
+        container.innerHTML += teacherDetailsHtml;
+
         const buttons = document.querySelectorAll(".bookAppointmentBtn");
         buttons.forEach((button) => {
           button.addEventListener("click", () => {
             const teacherId = button.getAttribute("data-teacher-id");
-            // bookAppointment(teacherId); // Call the function to handle appointment booking
             const customText = prompt(
               "Enter your custom message for the appointment:"
-            ); // Prompt for custom text
+            );
+
             if (customText) {
-              bookAppointment(teacherId, customText); // Pass the custom text to the booking function
+              bookAppointment(teacherId, customText);
+              button.textContent = "Request Sent";
+              button.disabled = true; // Disable the button after booking
             }
           });
         });
       }
+
+      function bookAppointment(teacherId, customText) {
+        const studentName = currentStudent.name; // Get the student's name
+        const studentEmail = currentStudent.email; // Get the student's email
+
+        const appointmentData = {
+          studentId: currentStudentId, // Replace with actual student ID
+          teacherId: teacherId,
+          status: "requested", // Initial status
+          customMessage: customText,
+          studentName: studentName, // Include student's name
+          studentEmail: studentEmail, // Include student's email
+        };
+
+        const appointmentsRef = ref(database, "appointments");
+        const newAppointmentRef = push(appointmentsRef);
+        set(newAppointmentRef, appointmentData)
+          .then(() => {
+            alert("Appointment request sent!");
+          })
+          .catch((error) => {
+            console.error("Error booking appointment:", error);
+          });
+      }
+
+      // Real-time listener for appointments
+
       window.logout = function () {
         window.location.href = "index.html"; // Change to your main page
       };

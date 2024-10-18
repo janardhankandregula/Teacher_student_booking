@@ -279,6 +279,10 @@
                 <option value="art">Art</option>
               </select>
             </div>
+            <div class="form-group">
+              <label for="email">Email:</label>
+              <input type="email" id="email" required />
+            </div>
             <button type="submit" class="submit-btn">Add</button>
           </form>
         </div>
@@ -369,12 +373,14 @@
         const name = prompt("Enter new name:", teacher.name);
         const department = prompt("Enter new department:", teacher.department);
         const subject = prompt("Enter new subject:", teacher.subject);
+        const email = prompt("Enter new subject:", teacher.email);
 
-        if (name && department && subject) {
+        if (name && department && subject && email) {
           set(ref(database, `teachers/${key}`), {
             name: name,
             department: department,
             subject: subject,
+            email: email,
           })
             .then(() => {
               console.log("Teacher updated successfully!");
@@ -473,12 +479,14 @@
         const name = document.getElementById("name").value;
         const department = document.getElementById("department").value;
         const subject = document.getElementById("subject").value;
+        const email = document.getElementById("email").value;
 
         const teachersRef = ref(database, "teachers/");
         push(teachersRef, {
           name: name,
           department: department,
           subject: subject,
+          email: email,
         })
           .then(() => {
             console.log("Teacher data stored successfully!");

@@ -12,7 +12,7 @@
         padding: 0;
       }
       header {
-        background: #28a745; /* Teacher color */
+        background: rgb(54, 69, 79); /* Teacher color */
         color: white;
         padding: 20px;
         text-align: center;
@@ -44,27 +44,321 @@
         cursor: pointer;
         font-weight: bold;
       }
+      .header-container {
+        display: flex;
+        justify-content: space-between; /* Space between items */
+        align-items: center; /* Center vertically */
+      }
+
+      .header-container h1 {
+        margin: 0; /* Remove default margin */
+        flex-grow: 1; /* Allow the title to take up available space */
+        text-align: center; /* Center the title text */
+      }
+      #loginForm {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        width: 300px;
+        margin: 0 auto;
+      }
+      #loginForm {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        width: 300px;
+        margin: 0 auto;
+      }
+
+      input[type="email"] {
+        width: calc(
+          100% - 22px
+        ); /* Adjust width to account for padding and border */
+        padding: 10px;
+        margin: 10px 0;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        transition: border-color 0.3s;
+        box-sizing: border-box; /* Ensure padding and border are included in total width */
+      }
+
+      input[type="email"]:focus {
+        border-color: #66afe9; /* Focus border color */
+        outline: none;
+      }
+      .btnSubmit {
+        width: calc(100% - 22px); /* Make button take full width */
+        padding: 10px; /* Same padding as inputs */
+        margin: 10px 0; /* Consistent margin with inputs */
+        background-color: rgb(76, 175, 80); /* Button color */
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        box-sizing: border-box; /* Include padding and border in width */
+      }
+      .btnSubmit:hover {
+        background-color: #0056b3; /* Darker shade on hover */
+      }
+      #formTitle {
+        width: 100%; /* Make the heading take full width */
+        text-align: center; /* Center text */
+        margin: 0; /* Remove default margin */
+        padding-bottom: 20px;
+      }
+      .emptyState {
+        position: relative; /* Allow absolute positioning of children */
+        padding: 20px; /* Add some padding for aesthetics */
+        border: 1px solid #ccc; /* Optional: Add border for visibility */
+        border-radius: 8px; /* Optional: Round corners */
+        background-color: white; /* Background color */
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Optional: Add shadow */
+      }
+      #appBtn {
+        position: absolute; /* Position the button absolutely */
+        top: 10px; /* Adjust this value as needed */
+        right: 10px; /* Adjust this value as needed */
+        padding: 8px 12px; /* Adjust padding for the button */
+        background-color: rgb(76, 175, 80); /* Button color */
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      .btnSubmit2 {
+        padding: 10px 15px; /* Same padding as inputs */
+        background-color: rgb(76, 175, 80); /* Button color */
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        box-sizing: border-box; /* Include padding and border in width */
+        width: auto; /* Set the width to auto to avoid full width */
+        margin: 10px auto; /* Center the button */
+        display: block; /* Make it a block element for margin auto to work */
+      }
+      #appointmentList {
+        list-style-type: none; /* Remove default list styling */
+        padding: 0; /* Remove padding */
+      }
+
+      #appointmentList li {
+        display: flex; /* Use flexbox for alignment */
+        justify-content: space-between;
+        /* Space between message and buttons */
+        align-items: center; /* Center items vertically */
+        padding: 10px; /* Add some padding */
+        border-bottom: 1px solid #ddd; /* Optional: Add a bottom border for separation */
+      }
+
+      .button-container {
+        display: flex; /* Use flexbox for the button container */
+        gap: 10px; /* Space between buttons */
+        margin-left: auto; /* Push buttons to the right */
+      }
+
+      #appointmentList button.approveBtn {
+        background-color: #28a745; /* Green for approve button */
+        color: white; /* Text color */
+        border: none; /* Remove border */
+        border-radius: 4px; /* Rounded corners */
+        padding: 8px 12px; /* Button padding */
+        cursor: pointer; /* Pointer cursor on hover */
+        transition: background-color 0.3s; /* Smooth transition */
+      }
+
+      #appointmentList button.cancelBtn {
+        background-color: #dc3545; /* Red for cancel button */
+        color: white; /* Text color */
+        border: none; /* Remove border */
+        border-radius: 4px; /* Rounded corners */
+        padding: 8px 12px; /* Button padding */
+        cursor: pointer; /* Pointer cursor on hover */
+        transition: background-color 0.3s; /* Smooth transition */
+      }
+
+      #appointmentList button:hover {
+        opacity: 0.8; /* Slightly dim on hover */
+      }
+      #viewMessageBtn {
+        background-color: #66afe9;
+        color: white;
+      }
     </style>
   </head>
   <body>
-    <header>
+    <header class="header-container">
       <h1>Teacher Dashboard</h1>
+      <button class="logout-btn" onclick="logout()">Logout</button>
     </header>
 
     <div class="container">
-      <h2>Manage Classes</h2>
-      <div class="class-list">
-        <div class="class-item">Class 1</div>
-        <div class="class-item">Class 2</div>
-        <div class="class-item">Class 3</div>
-      </div>
-      <button class="logout-btn" onclick="logout()">Logout</button>
+      <h1 id="formTitle">Teacher Login</h1>
+      <form id="loginForm">
+        <input type="email" id="loginEmail" placeholder="Email" required />
+        <button type="submit" class="btnSubmit">Login</button>
+      </form>
+      <div id="welcomeMessage" class="hidden"></div>
     </div>
 
-    <script>
-      function logout() {
-        window.location.href = "index.html"; // Change to your main page
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+      import { getDatabase } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+      import {
+        ref,
+        push,
+        set,
+        get,
+        remove,
+        update,
+      } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+      import { child } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBxPGHxAYM1MYb0MVNb2l4c5rB1sp13v8Y",
+        authDomain: "student-teacher-booking-16014.firebaseapp.com",
+        projectId: "student-teacher-booking-16014",
+        storageBucket: "student-teacher-booking-16014.appspot.com",
+        messagingSenderId: "109992254488",
+        appId: "1:109992254488:web:163c659a769de9d96b776d",
+        measurementId: "G-R7E9TGXEGR",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const database = getDatabase(app);
+      let currentTeacherId;
+
+      document.getElementById("loginForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const email = document.getElementById("loginEmail").value;
+
+        const teachersRef = ref(database, "teachers");
+        get(teachersRef)
+          .then((snapshot) => {
+            let found = false;
+            snapshot.forEach((childSnapshot) => {
+              const teacher = childSnapshot.val();
+              const teacherId = childSnapshot.key;
+              if (teacher.email === email) {
+                found = true;
+                currentTeacherId = teacherId;
+                document.getElementById("loginForm").classList.add("hidden");
+                // const welcomeMessage =
+                //   document.getElementById("welcomeMessage");
+                // welcomeMessage.textContent = `Welcome prof, ${teacher.name}!`;
+                // welcomeMessage.classList.remove("hidden");
+
+                const container = document.querySelector(".container");
+                container.innerHTML = `<div class="emptyState">Welcome prof, ${teacher.name}!
+                      <button id="appBtn" class="btnSubmit2">Show Appointments</button>
+                        <ul id="appointmentList"></ul> <!-- Make sure this is here -->
+                        </div>`;
+                let appointmentsVisible = false;
+                // document.getElementById("appBtn").onclick = function () {
+                //   fetchAppointments(teacherId);
+                // };
+                document.getElementById("appBtn").onclick = function () {
+                  if (appointmentsVisible) {
+                    // Hide appointments
+                    document.getElementById("appointmentList").innerHTML = ""; // Clear the appointments
+                    this.textContent = "Show Appointments"; // Change button text back
+                  } else {
+                    // Fetch and display appointments
+                    fetchAppointments(teacherId);
+                    this.textContent = "Close Appointments"; // Change button text to "Close Appointments"
+                  }
+                  appointmentsVisible = !appointmentsVisible; // Toggle the visibility flag
+                };
+              }
+            });
+            if (!found) {
+              alert("Teacher not found. Please check the email.");
+            }
+          })
+          .catch((error) => {
+            console.error("Error fetching teachers:", error);
+          });
+      });
+
+      function fetchAppointments(teacherId) {
+        const appointmentsRef = ref(database, "appointments");
+        get(appointmentsRef).then((snapshot) => {
+          const appointments = [];
+          snapshot.forEach((childSnapshot) => {
+            const appointment = childSnapshot.val();
+            const appointmentId = childSnapshot.key;
+
+            if (
+              appointment.teacherId === teacherId &&
+              appointment.status === "requested"
+            ) {
+              appointments.push({ ...appointment, id: appointmentId });
+            }
+          });
+          displayAppointments(appointments);
+        });
       }
+
+      function displayAppointments(appointments) {
+        console.log(appointments);
+        const appointmentList = document.getElementById("appointmentList");
+        appointmentList.innerHTML = ""; // Clear previous appointments
+
+        appointments.forEach((appointment) => {
+          const listItem = document.createElement("li");
+          listItem.innerHTML = `
+            <div class="text-container">
+                ${appointment.studentName} - ${appointment.studentEmail}
+            </div>
+            <div class="button-container">
+               <button class="viewMessageBtn" onclick="showMessage('${appointment.customMessage}')">View Message</button>
+                <button class="approveBtn" onclick="approveAppointment('${appointment.id}')">Approve</button>
+                <button class="cancelBtn" onclick="cancelAppointment('${appointment.id}')">Cancel</button>
+            </div>
+             <div class="message-container" id="message-${appointment.id}" style="display: none;"></div>
+        `;
+          appointmentList.appendChild(listItem);
+        });
+      }
+
+      window.approveAppointment = function (appointmentId, button) {
+        const appointmentRef = ref(database, `appointments/${appointmentId}`);
+        update(appointmentRef, { status: "approved" })
+          .then(() => {
+            button.textContent = "Approved"; // Update button text
+            button.disabled = true; // Disable the button after approval
+          })
+          .catch((error) => {
+            console.error("Error approving appointment:", error);
+          });
+      };
+
+      window.cancelAppointment = function (appointmentId) {
+        const appointmentRef = ref(database, `appointments/${appointmentId}`);
+
+        // Remove the appointment from the database
+        remove(appointmentRef)
+          .then(() => {
+            alert("Appointment canceled successfully!");
+            fetchAppointments(currentTeacherId); // Refresh the list to show updated appointments
+          })
+          .catch((error) => {
+            console.error("Error canceling appointment:", error);
+          });
+      };
+
+      window.logout = function () {
+        window.location.href = "index.html"; // Change to your main page
+      };
+
+      window.showMessage = function (message) {
+        alert(message);
+      };
     </script>
   </body>
 </html>
