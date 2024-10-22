@@ -156,11 +156,11 @@
         border-bottom: 1px solid #ddd; /* Optional: Add a bottom border for separation */
       }
 
-      .button-container {
-        display: flex; /* Use flexbox for the button container */
-        gap: 10px; /* Space between buttons */
-        margin-left: auto; /* Push buttons to the right */
-      }
+      /* .button-container {
+        display: flex;
+        gap: 10px;
+        margin-left: auto;
+      } */
 
       #appointmentList button.approveBtn {
         background-color: #28a745; /* Green for approve button */
@@ -185,9 +185,48 @@
       #appointmentList button:hover {
         opacity: 0.8; /* Slightly dim on hover */
       }
-      #viewMessageBtn {
-        background-color: #66afe9;
-        color: white;
+
+      .viewMessageBtn {
+        background-color: #d48f28; /* Blue background */
+        color: white; /* White text */
+        border: none; /* No border */
+        border-radius: 4px; /* Rounded corners */
+        padding: 8px 12px; /* Padding for better spacing */
+        cursor: pointer; /* Pointer cursor on hover */
+        transition: background-color 0.3s; /* Smooth transition */
+      }
+
+      .viewMessageBtn:hover {
+        background-color: #e68a00; /* Darker shade on hover */
+      }
+
+      .final-div {
+        display: flex;
+        margin-top: 20px;
+      }
+      .text-container {
+        flex-grow: 1;
+        margin-right: 15px; /* Space between text and buttons */
+      }
+
+      .button-container {
+        display: flex; /* Keep buttons in a row */
+        gap: 10px; /* Space between buttons */
+        margin-right: 10px;
+      }
+
+      .viewMessageContainer {
+        margin-bottom: 5px; /* Space below the view message button */
+      }
+
+      .message-container {
+        display: none; /* Keep it hidden by default */
+        margin-top: 20px; /* Space above the message container */
+        padding: 10px; /* Optional padding */
+        border: 1px solid #ccc; /* Optional border */
+        border-radius: 4px; /* Rounded corners */
+        background-color: #f9f9f9; /* Light background color */
+        width: 95%; /* Full width */
       }
     </style>
   </head>
@@ -248,29 +287,29 @@
                 found = true;
                 currentTeacherId = teacherId;
                 document.getElementById("loginForm").classList.add("hidden");
-                // const welcomeMessage =
-                //   document.getElementById("welcomeMessage");
-                // welcomeMessage.textContent = `Welcome prof, ${teacher.name}!`;
-                // welcomeMessage.classList.remove("hidden");
 
                 const container = document.querySelector(".container");
                 container.innerHTML = `<div class="emptyState">Welcome prof, ${teacher.name}!
                       <button id="appBtn" class="btnSubmit2">Show Appointments</button>
-                        <ul id="appointmentList"></ul> <!-- Make sure this is here -->
+                         <div id="messagesContainer"></div> 
+                        <ul id="appointmentList"></ul> 
                         </div>`;
                 let appointmentsVisible = false;
-                // document.getElementById("appBtn").onclick = function () {
-                //   fetchAppointments(teacherId);
-                // };
+                fetchMessagesFromAppointments(teacherId);
+
                 document.getElementById("appBtn").onclick = function () {
                   if (appointmentsVisible) {
                     // Hide appointments
                     document.getElementById("appointmentList").innerHTML = ""; // Clear the appointments
                     this.textContent = "Show Appointments"; // Change button text back
+                    this.style.backgroundColor = "";
+                    messagesContainer.style.display = "block";
                   } else {
                     // Fetch and display appointments
+                    messagesContainer.style.display = "none";
                     fetchAppointments(teacherId);
                     this.textContent = "Close Appointments"; // Change button text to "Close Appointments"
+                    this.style.backgroundColor = "rgb(220, 20, 60)";
                   }
                   appointmentsVisible = !appointmentsVisible; // Toggle the visibility flag
                 };
@@ -284,6 +323,26 @@
             console.error("Error fetching teachers:", error);
           });
       });
+      function fetchMessagesFromAppointments(teacherId) {
+        const appointmentsRef = ref(database, "appointments"); // Reference to the appointments
+        get(appointmentsRef)
+          .then((snapshot) => {
+            const messagesContainer =
+              document.getElementById("messagesContainer");
+            messagesContainer.innerHTML = "<h3>Received Messages:</h3>"; // Heading for messages
+            snapshot.forEach((childSnapshot) => {
+              const appointment = childSnapshot.val();
+              if (appointment.teacherId === teacherId) {
+                const messageDiv = document.createElement("div");
+                messageDiv.textContent = `${appointment.studentName}: ${appointment.customMessage}`; // Display student name and custom message
+                messagesContainer.appendChild(messageDiv);
+              }
+            });
+          })
+          .catch((error) => {
+            console.error("Error fetching appointments:", error);
+          });
+      }
 
       function fetchAppointments(teacherId) {
         const appointmentsRef = ref(database, "appointments");
@@ -304,25 +363,32 @@
         });
       }
 
+      //
       function displayAppointments(appointments) {
-        console.log(appointments);
         const appointmentList = document.getElementById("appointmentList");
         appointmentList.innerHTML = ""; // Clear previous appointments
 
         appointments.forEach((appointment) => {
-          const listItem = document.createElement("li");
-          listItem.innerHTML = `
-            <div class="text-container">
+          const testDiv = document.createElement("div");
+          testDiv.className = "test-div"; // Add a class for styling
+
+          testDiv.innerHTML = `
+          <div class="final-div">
+              <div class="text-container">
                 ${appointment.studentName} - ${appointment.studentEmail}
             </div>
             <div class="button-container">
-               <button class="viewMessageBtn" onclick="showMessage('${appointment.customMessage}')">View Message</button>
-                <button class="approveBtn" onclick="approveAppointment('${appointment.id}')">Approve</button>
+                <button class="approveBtn" onclick="approveAppointment('${appointment.id}', this)">Approve</button>
                 <button class="cancelBtn" onclick="cancelAppointment('${appointment.id}')">Cancel</button>
+               <button class="viewMessageBtn" onclick="showMessage('${appointment.customMessage}', '${appointment.id}', this)">View Message</button>
+
             </div>
-             <div class="message-container" id="message-${appointment.id}" style="display: none;"></div>
+            </div>
+          
+            <div class="message-container" id="message-${appointment.id}" style="display: none;"></div>
         `;
-          appointmentList.appendChild(listItem);
+
+          appointmentList.appendChild(testDiv);
         });
       }
 
@@ -332,7 +398,30 @@
           .then(() => {
             button.textContent = "Approved"; // Update button text
             button.disabled = true; // Disable the button after approval
+
+            const scheduleDate = prompt(
+              "Please enter the scheduled date (YYYY-MM-DD):"
+            );
+            if (scheduleDate) {
+              update(appointmentRef, {
+                scheduledDate: scheduleDate,
+                status: "scheduled", // Optionally update status to "scheduled"
+              });
+              update(appointmentRef, { scheduledDate: scheduleDate })
+                .then(() => {
+                  alert(
+                    "Appointment scheduled successfully for " + scheduleDate
+                  );
+                })
+                .catch((error) => {
+                  console.error(
+                    "Error updating appointment with scheduled date:",
+                    error
+                  );
+                });
+            }
           })
+
           .catch((error) => {
             console.error("Error approving appointment:", error);
           });
@@ -356,9 +445,22 @@
         window.location.href = "index.html"; // Change to your main page
       };
 
-      window.showMessage = function (message) {
-        alert(message);
+      window.showMessage = function (message, appointmentId, button) {
+        const messageContainer = document.getElementById(
+          `message-${appointmentId}`
+        );
+        const isVisible = messageContainer.style.display === "block";
+
+        if (isVisible) {
+          messageContainer.style.display = "none"; // Hide the message
+          button.textContent = "View Message"; // Change button text back
+        } else {
+          messageContainer.textContent = message; // Set the message text
+          messageContainer.style.display = "block"; // Show the message container
+          button.textContent = "Close Message"; // Change button text to "Close Message"
+        }
       };
     </script>
+    <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
   </body>
 </html>

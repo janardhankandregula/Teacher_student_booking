@@ -4,6 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Page</title>
+    <!-- <script
+      type="text/javascript"
+      src="https://cdn.emailjs.com/dist/email.min.js"
+    ></script> -->
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"
+    ></script>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -12,7 +20,7 @@
         padding: 0;
       }
       header {
-        background: #008080; /* Admin color */
+        background: #0a3d3d; /* Admin color */
         color: white;
         padding: 20px;
         text-align: center;
@@ -290,6 +298,7 @@
     </div>
 
     <script type="module">
+      emailjs.init("YGJ04VVdkUCd5SLKO");
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
       import { getDatabase } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
       import {
@@ -330,6 +339,45 @@
         }
       };
 
+      // function fetchTeachers() {
+      //   const teachersList = document.getElementById("teachersList");
+      //   teachersList.innerHTML = ""; // Clear the list before fetching data
+
+      //   const teachersRef = ref(database, "teachers/");
+
+      //   get(teachersRef)
+      //     .then((snapshot) => {
+      //       if (snapshot.exists()) {
+      //         const teachers = snapshot.val();
+      //         for (const key in teachers) {
+      //           const teacher = teachers[key];
+      //           const listItem = document.createElement("li");
+      //           listItem.textContent = `${teacher.name} - ${teacher.department} (${teacher.subject})`;
+      //           // teachersList.appendChild(listItem);
+      //           // Create Update Button
+      //           const updateButton = document.createElement("button");
+      //           updateButton.innerHTML = '<i class="fas fa-edit"></i>';
+      //           updateButton.onclick = () => {
+      //             updateTeacher(key, teacher);
+      //           };
+      //           const deleteButton = document.createElement("button");
+      //           deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+      //           deleteButton.onclick = () => {
+      //             deleteTeacher(key);
+      //           };
+
+      //           listItem.appendChild(updateButton);
+      //           listItem.appendChild(deleteButton);
+      //           teachersList.appendChild(listItem);
+      //         }
+      //       } else {
+      //         teachersList.textContent = "No teachers found.";
+      //       }
+      //     })
+      //     .catch((error) => {
+      //       console.error("Error fetching data:", error);
+      //     });
+      // }
       function fetchTeachers() {
         const teachersList = document.getElementById("teachersList");
         teachersList.innerHTML = ""; // Clear the list before fetching data
@@ -342,24 +390,33 @@
               const teachers = snapshot.val();
               for (const key in teachers) {
                 const teacher = teachers[key];
-                const listItem = document.createElement("li");
-                listItem.textContent = `${teacher.name} - ${teacher.department} (${teacher.subject})`;
-                // teachersList.appendChild(listItem);
-                // Create Update Button
-                const updateButton = document.createElement("button");
-                updateButton.innerHTML = '<i class="fas fa-edit"></i>';
-                updateButton.onclick = () => {
-                  updateTeacher(key, teacher);
-                };
-                const deleteButton = document.createElement("button");
-                deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
-                deleteButton.onclick = () => {
-                  deleteTeacher(key);
-                };
 
-                listItem.appendChild(updateButton);
-                listItem.appendChild(deleteButton);
-                teachersList.appendChild(listItem);
+                // Check for duplicates
+                const existingItems = teachersList.querySelectorAll("li");
+                const alreadyExists = Array.from(existingItems).some((item) =>
+                  item.textContent.includes(teacher.name)
+                );
+
+                if (!alreadyExists) {
+                  const listItem = document.createElement("li");
+                  listItem.textContent = `${teacher.name} - ${teacher.department} (${teacher.subject})`;
+
+                  // Create Update Button
+                  const updateButton = document.createElement("button");
+                  updateButton.innerHTML = '<i class="fas fa-edit"></i>';
+                  updateButton.onclick = () => {
+                    updateTeacher(key, teacher);
+                  };
+                  const deleteButton = document.createElement("button");
+                  deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+                  deleteButton.onclick = () => {
+                    deleteTeacher(key);
+                  };
+
+                  listItem.appendChild(updateButton);
+                  listItem.appendChild(deleteButton);
+                  teachersList.appendChild(listItem);
+                }
               }
             } else {
               teachersList.textContent = "No teachers found.";
@@ -369,6 +426,7 @@
             console.error("Error fetching data:", error);
           });
       }
+
       function updateTeacher(key, teacher) {
         const name = prompt("Enter new name:", teacher.name);
         const department = prompt("Enter new department:", teacher.department);
@@ -490,13 +548,32 @@
         })
           .then(() => {
             console.log("Teacher data stored successfully!");
+
             toggleForm(); // Hide the form after submission
             fetchTeachers(); // Optionally fetch updated list
+            sendEmailNotification();
           })
           .catch((error) => {
             console.error("Error storing data:", error);
           });
       };
+      function sendEmailNotification() {
+        const params = {
+          to_name: "janardhanrljs@gmail.com", // Recipient name
+          from_name: "Your Name", // Your name or the name of the sender
+          message: `A new teacher has been added: `,
+          reply_to: "janardhanvfstr006@gmail.com", // Your email
+        };
+
+        emailjs
+          .send("service_ru9d5fj", "template_4l5egbi", params)
+          .then((res) => {
+            console.log("Email sent successfully", res.status);
+          })
+          .catch((err) => {
+            console.error("Failed to send email", err);
+          });
+      }
 
       window.logout = function () {
         window.location.href = "index.html"; // Change to your main page
